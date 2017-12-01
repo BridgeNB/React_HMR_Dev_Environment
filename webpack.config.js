@@ -1,38 +1,57 @@
-const webpack = require('webpack');
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+var webpack = require('webpack')
+var webpackHtmlPlugin = require('html-webpack-plugin')
+var path = require('path')
 
-var BUILD_DIR = path.resolve(__dirname, 'src/client/public');
-var APP_DIR = path.resolve(__dirname, 'src/client/app');
+const ROOT_PATH = path.resolve(__dirname)
+const APP_PATH = path.resolve(ROOT_PATH,'app')
+const OUTPUT_PATH =path.resolve(ROOT_PATH,'bundle')
 
-var config = {
-  entry: [
-    'babel-polyfill', 'react-hot-loader/patch', './main.js'
-  ],
-  output: {
-    path: BUILD_DIR,
-    filename: 'bundle.js'
-  },
-  devServer: {
-    contentBase: BUILD_DIR···,
-    port: 9000,
-    hot: true
-  },
-  plugins: [
-    new HtmlWebpackPlugin({title: 'Hot Module Replacement'}),
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin()
-  ],
-  module: {
-    loaders: [
-      {
-        test: /\.jsx?/,
-        include: APP_DIR,
-        loader: 'babel-loader'
-      }
-    ]
-  }
-};
+module.exports = {
+    entry:[
+        'react-hot-loader/patch',
+        'webpack-dev-server/client?http://localhost:8080',
+        'webpack/hot/only-dev-server',
+        './app/app.jsx'
+    ],
+    output:{
+        filename:'bundle.js',
+        publicPath:'/',
+        path:OUTPUT_PATH
+    },
+    devtool:'inline-source-map',
+    devServer:{
+        hot:true,
+        publicPath:'/',
+        contentBase:path.resolve(OUTPUT_PATH)
+    },
 
-module.exports = config;
+    module:{
+        rules:[
+            {
+                test:/\.jsx?$/,
+                loader:'babel-loader',
+                options:{
+                    presets:[
+                        ['es2015',{'module':false}],
+                        'react'
+                    ],
+                    plugins:[
+                        'react-hot-loader/babel'
+                    ]
+                },
+                exclude:/node_modules/
+            }
+        ]
+    },
+
+    plugins:[
+        new webpackHtmlPlugin({
+            filename:'index.html'
+        }),
+        //new webpack.HotModuleReplacementPlugin(),
+        //new webpack.NamedModulesPlugin()
+    ],
+    resolve:{
+        extensions:['.js','.jsx']
+    }
+}
